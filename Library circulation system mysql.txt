@@ -1,0 +1,301 @@
+Setting environment for using XAMPP for Windows.
+HP@DESKTOP-HAOROVS c:\xampp
+# mysql -u root
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 8
+Server version: 10.4.32-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> CREATE DATABASE library_circulation_system;
+ERROR 1007 (HY000): Can't create database 'library_circulation_system'; database exists
+MariaDB [(none)]> USE library_circulation_system;
+Database changed
+MariaDB [library_circulation_system]> CREATE TABLE student (
+    ->     student_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     student_reg_no VARCHAR(20) NOT NULL,
+    ->     student_name VARCHAR(50) NOT NULL,
+    ->     gender VARCHAR(10),
+    ->     phone_number VARCHAR(20)
+    -> );
+ERROR 1050 (42S01): Table 'student' already exists
+MariaDB [library_circulation_system]> CREATE TABLE librarian (
+    ->     librarian_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     librarian_name VARCHAR(50) NOT NULL,
+    ->     gender VARCHAR(10),
+    ->     phone_number VARCHAR(20)
+    -> );
+ERROR 1050 (42S01): Table 'librarian' already exists
+MariaDB [library_circulation_system]>
+MariaDB [library_circulation_system]> TRUNCATE TABLE student;
+ERROR 1701 (42000): Cannot truncate a table referenced in a foreign key constraint (`library_circulation_system`.`borrow`, CONSTRAINT `borrow_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `library_circulation_system`.`student` (`student_id`))
+MariaDB [library_circulation_system]> DROP DATABASE library_circulation_system;
+Query OK, 6 rows affected (0.171 sec)
+
+MariaDB [(none)]> CREATE DATABASE library_circulation_system;
+Query OK, 1 row affected (0.002 sec)
+
+MariaDB [(none)]> USE library_circulation_system;
+Database changed
+MariaDB [library_circulation_system]> CREATE TABLE student (
+    ->     student_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     student_reg_no VARCHAR(20) NOT NULL,
+    ->     student_name VARCHAR(50) NOT NULL,
+    ->     gender VARCHAR(10),
+    ->     phone_number VARCHAR(20)
+    -> );
+Query OK, 0 rows affected (0.024 sec)
+
+MariaDB [library_circulation_system]> CREATE TABLE librarian (
+    ->     librarian_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     librarian_name VARCHAR(50) NOT NULL,
+    ->     gender VARCHAR(10),
+    ->     phone_number VARCHAR(20)
+    -> );
+Query OK, 0 rows affected (0.017 sec)
+
+MariaDB [library_circulation_system]> CREATE TABLE books (
+    ->     book_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     title VARCHAR(100) NOT NULL,
+    ->     author VARCHAR(100) NOT NULL,
+    ->     publisher VARCHAR(100),
+    ->     isbn VARCHAR(30),
+    ->     category VARCHAR(50),
+    ->     year_published INT,
+    ->     quantity INT NOT NULL
+    -> );
+Query OK, 0 rows affected (0.024 sec)
+
+MariaDB [library_circulation_system]> CREATE TABLE borrow (
+    ->     borrow_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     student_id INT,
+    ->     book_id INT,
+    ->     borrow_date DATE,
+    ->     due_date DATE,
+    ->     FOREIGN KEY (student_id) REFERENCES student(student_id),
+    ->     FOREIGN KEY (book_id) REFERENCES books(book_id)
+    -> );
+Query OK, 0 rows affected (0.053 sec)
+
+MariaDB [library_circulation_system]> CREATE TABLE returns (
+    ->     return_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     borrow_id INT,
+    ->     return_date DATE,
+    ->     fine DECIMAL(10,2),
+    ->     FOREIGN KEY (borrow_id) REFERENCES borrow(borrow_id)
+    -> );
+Query OK, 0 rows affected (0.052 sec)
+
+MariaDB [library_circulation_system]> CREATE TABLE overdues (
+    ->     overdue_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     student_id INT,
+    ->     book_id INT,
+    ->     due_date DATE,
+    ->     days_overdue INT,
+    ->     fine DECIMAL(10,2),
+    ->     FOREIGN KEY (student_id) REFERENCES student(student_id),
+    ->     FOREIGN KEY (book_id) REFERENCES books(book_id)
+    -> );
+Query OK, 0 rows affected (0.060 sec)
+
+MariaDB [library_circulation_system]> INSERT INTO member(student_name, gender, phone_number)
+    -> VALUES
+    -> ('Agatha', 'Female', '0700000001'),
+    -> ('Brian', 'Male', '0700000002');
+ERROR 1146 (42S02): Table 'library_circulation_system.member' doesn't exist
+MariaDB [library_circulation_system]> INSERT INTO student(student_reg_no, student_name, gender, phone_number)
+    -> VALUES
+    -> ('BIT/24/001', 'Agatha', 'Female', '0700000001'),
+    -> ('BCS/24/002', 'Brian', 'Male', '0700000002');
+Query OK, 2 rows affected (0.008 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [library_circulation_system]> INSERT INTO librarian(librarian_name, gender, phone_number)
+    -> VALUES
+    -> ('Sarah', 'Female', '0755555555'),
+    -> ('John', 'Male', '0777777777');
+Query OK, 2 rows affected (0.007 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [library_circulation_system]> INSERT INTO book(title, author, publisher, isbn, category, year_published, quantity)
+    -> VALUES
+    -> ('Database Systems', 'Elmasri', 'Pearson', '9781234567890', 'Education', 2020, 10),
+    -> ('Introduction to Algorithms', 'Thomas Cormen', 'MIT Press', '9780987654321', 'Technology', 2018, 5);
+ERROR 1146 (42S02): Table 'library_circulation_system.book' doesn't exist
+MariaDB [library_circulation_system]> INSERT INTO books(title, author, category, quantity)
+    -> VALUES
+    -> ('Database Systems', 'Elmasri', 'Education', 10),
+    -> ('Introduction to Algorithms', 'Thomas Cormen', 'Technology', 5);
+Query OK, 2 rows affected (0.011 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [library_circulation_system]> INSERT INTO borrow(student_id, book_id, borrow_date, due_date)
+    -> VALUES
+    -> (1, 1, '2026-05-05', '2026-05-12'),
+    -> (2, 2, '2026-05-06', '2026-05-13');
+Query OK, 2 rows affected (0.006 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [library_circulation_system]> INSERT INTO returns(borrow_id, return_date, fine)
+    -> VALUES
+    -> (1, '2026-05-10', 0.00),
+    -> (2, '2026-05-15', 5000.00);
+Query OK, 2 rows affected (0.010 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [library_circulation_system]> INSERT INTO overdues(student_id, book_id, due_date, days_overdue, fine)
+    -> VALUES
+    -> (2, 2, '2026-05-13', 2, 5000.00);
+Query OK, 1 row affected (0.006 sec)
+
+MariaDB [library_circulation_system]> SELECT * FROM student;
++------------+----------------+--------------+--------+--------------+
+| student_id | student_reg_no | student_name | gender | phone_number |
++------------+----------------+--------------+--------+--------------+
+|          1 | BIT/24/001     | Agatha       | Female | 0700000001   |
+|          2 | BCS/24/002     | Brian        | Male   | 0700000002   |
++------------+----------------+--------------+--------+--------------+
+2 rows in set (0.001 sec)
+
+MariaDB [library_circulation_system]> SELECT * FROM librarian;SELECT * FROM librarian;
++--------------+----------------+--------+--------------+
+| librarian_id | librarian_name | gender | phone_number |
++--------------+----------------+--------+--------------+
+|            1 | Sarah          | Female | 0755555555   |
+|            2 | John           | Male   | 0777777777   |
++--------------+----------------+--------+--------------+
+2 rows in set (0.000 sec)
+
++--------------+----------------+--------+--------------+
+| librarian_id | librarian_name | gender | phone_number |
++--------------+----------------+--------+--------------+
+|            1 | Sarah          | Female | 0755555555   |
+|            2 | John           | Male   | 0777777777   |
++--------------+----------------+--------+--------------+
+2 rows in set (0.000 sec)
+
+MariaDB [library_circulation_system]> SELECT * FROM books;
++---------+----------------------------+---------------+-----------+------+------------+----------------+----------+
+| book_id | title                      | author        | publisher | isbn | category   | year_published | quantity |
++---------+----------------------------+---------------+-----------+------+------------+----------------+----------+
+|       1 | Database Systems           | Elmasri       | NULL      | NULL | Education  |           NULL |       10 |
+|       2 | Introduction to Algorithms | Thomas Cormen | NULL      | NULL | Technology |           NULL |        5 |
++---------+----------------------------+---------------+-----------+------+------------+----------------+----------+
+2 rows in set (0.001 sec)
+
+MariaDB [library_circulation_system]> SELECT * FROM borrow;
++-----------+------------+---------+-------------+------------+
+| borrow_id | student_id | book_id | borrow_date | due_date   |
++-----------+------------+---------+-------------+------------+
+|         1 |          1 |       1 | 2026-05-05  | 2026-05-12 |
+|         2 |          2 |       2 | 2026-05-06  | 2026-05-13 |
++-----------+------------+---------+-------------+------------+
+2 rows in set (0.000 sec)
+
+MariaDB [library_circulation_system]> SELECT * FROM returns;
++-----------+-----------+-------------+---------+
+| return_id | borrow_id | return_date | fine    |
++-----------+-----------+-------------+---------+
+|         1 |         1 | 2026-05-10  |    0.00 |
+|         2 |         2 | 2026-05-15  | 5000.00 |
++-----------+-----------+-------------+---------+
+2 rows in set (0.000 sec)
+
+MariaDB [library_circulation_system]> SELECT * FROM overdues;
++------------+------------+---------+------------+--------------+---------+
+| overdue_id | student_id | book_id | due_date   | days_overdue | fine    |
++------------+------------+---------+------------+--------------+---------+
+|          1 |          2 |       2 | 2026-05-13 |            2 | 5000.00 |
++------------+------------+---------+------------+--------------+---------+
+1 row in set (0.000 sec)
+
+MariaDB [library_circulation_system]> DESCRIBE student;
++----------------+-------------+------+-----+---------+----------------+
+| Field          | Type        | Null | Key | Default | Extra          |
++----------------+-------------+------+-----+---------+----------------+
+| student_id     | int(11)     | NO   | PRI | NULL    | auto_increment |
+| student_reg_no | varchar(20) | NO   |     | NULL    |                |
+| student_name   | varchar(50) | NO   |     | NULL    |                |
+| gender         | varchar(10) | YES  |     | NULL    |                |
+| phone_number   | varchar(20) | YES  |     | NULL    |                |
++----------------+-------------+------+-----+---------+----------------+
+5 rows in set (0.040 sec)
+
+MariaDB [library_circulation_system]> DESCRIBE books;
++----------------+--------------+------+-----+---------+----------------+
+| Field          | Type         | Null | Key | Default | Extra          |
++----------------+--------------+------+-----+---------+----------------+
+| book_id        | int(11)      | NO   | PRI | NULL    | auto_increment |
+| title          | varchar(100) | NO   |     | NULL    |                |
+| author         | varchar(100) | NO   |     | NULL    |                |
+| publisher      | varchar(100) | YES  |     | NULL    |                |
+| isbn           | varchar(30)  | YES  |     | NULL    |                |
+| category       | varchar(50)  | YES  |     | NULL    |                |
+| year_published | int(11)      | YES  |     | NULL    |                |
+| quantity       | int(11)      | NO   |     | NULL    |                |
++----------------+--------------+------+-----+---------+----------------+
+8 rows in set (0.020 sec)
+
+MariaDB [library_circulation_system]> DESCRIBE borrow;
++-------------+---------+------+-----+---------+----------------+
+| Field       | Type    | Null | Key | Default | Extra          |
++-------------+---------+------+-----+---------+----------------+
+| borrow_id   | int(11) | NO   | PRI | NULL    | auto_increment |
+| student_id  | int(11) | YES  | MUL | NULL    |                |
+| book_id     | int(11) | YES  | MUL | NULL    |                |
+| borrow_date | date    | YES  |     | NULL    |                |
+| due_date    | date    | YES  |     | NULL    |                |
++-------------+---------+------+-----+---------+----------------+
+5 rows in set (0.008 sec)
+
+MariaDB [library_circulation_system]> DESCRIBE student;
++----------------+-------------+------+-----+---------+----------------+
+| Field          | Type        | Null | Key | Default | Extra          |
++----------------+-------------+------+-----+---------+----------------+
+| student_id     | int(11)     | NO   | PRI | NULL    | auto_increment |
+| student_reg_no | varchar(20) | NO   |     | NULL    |                |
+| student_name   | varchar(50) | NO   |     | NULL    |                |
+| gender         | varchar(10) | YES  |     | NULL    |                |
+| phone_number   | varchar(20) | YES  |     | NULL    |                |
++----------------+-------------+------+-----+---------+----------------+
+5 rows in set (0.022 sec)
+
+MariaDB [library_circulation_system]> DESCRIBE books;
++----------------+--------------+------+-----+---------+----------------+
+| Field          | Type         | Null | Key | Default | Extra          |
++----------------+--------------+------+-----+---------+----------------+
+| book_id        | int(11)      | NO   | PRI | NULL    | auto_increment |
+| title          | varchar(100) | NO   |     | NULL    |                |
+| author         | varchar(100) | NO   |     | NULL    |                |
+| publisher      | varchar(100) | YES  |     | NULL    |                |
+| isbn           | varchar(30)  | YES  |     | NULL    |                |
+| category       | varchar(50)  | YES  |     | NULL    |                |
+| year_published | int(11)      | YES  |     | NULL    |                |
+| quantity       | int(11)      | NO   |     | NULL    |                |
++----------------+--------------+------+-----+---------+----------------+
+8 rows in set (0.007 sec)
+
+MariaDB [library_circulation_system]> DESCRIBE borrow;
++-------------+---------+------+-----+---------+----------------+
+| Field       | Type    | Null | Key | Default | Extra          |
++-------------+---------+------+-----+---------+----------------+
+| borrow_id   | int(11) | NO   | PRI | NULL    | auto_increment |
+| student_id  | int(11) | YES  | MUL | NULL    |                |
+| book_id     | int(11) | YES  | MUL | NULL    |                |
+| borrow_date | date    | YES  |     | NULL    |                |
+| due_date    | date    | YES  |     | NULL    |                |
++-------------+---------+------+-----+---------+----------------+
+5 rows in set (0.008 sec)
+
+MariaDB [library_circulation_system]> DESCRIBE returns;
++-------------+---------------+------+-----+---------+----------------+
+| Field       | Type          | Null | Key | Default | Extra          |
++-------------+---------------+------+-----+---------+----------------+
+| return_id   | int(11)       | NO   | PRI | NULL    | auto_increment |
+| borrow_id   | int(11)       | YES  | MUL | NULL    |                |
+| return_date | date          | YES  |     | NULL    |                |
+| fine        | decimal(10,2) | YES  |     | NULL    |                |
++-------------+---------------+------+-----+---------+----------------+
+4 rows in set (0.026 sec)
